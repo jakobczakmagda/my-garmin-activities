@@ -1,2 +1,2 @@
 # my-garmin-activities
-my garmin data analysis
+Garmin data analysis.
