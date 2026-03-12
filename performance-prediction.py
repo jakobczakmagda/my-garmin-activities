@@ -12,7 +12,8 @@ pio.renderers.default = "notebook"
 ### Data Preprocessing ###
 
 # Load garmin data
-df = pd.read_csv('data/Activities.csv')
+#df = pd.read_csv('data/Activities.csv')
+df = pd.read_csv('/Users/magda/Desktop/DEV/my-garmin-activities/data/Activities.csv')
 
 # Normalize column names for convenience
 df = df.rename(columns={
@@ -58,7 +59,7 @@ df = df[df['activity_type'].str.contains('run', case=False, na=False)]
 
 # Keep only columns that will be later used
 df = df[['date', 'distance','calories','avg_hr','avg_cad', 'avg_pace',
-         'best_pace', 'stride_len', 'elapsed_time', 'tss']]
+         'best_pace', 'stride_len', 'elapsed_time', 'tss', 'avg_power']]
 
 # Convert dates and time
 df['date'] = pd.to_datetime(df['date'])
@@ -116,17 +117,84 @@ fig.update_yaxes(title_text="Elapsed time (h)", secondary_y=True)
 fig.update_xaxes(title_text="Week")
 fig.show()
 #%%
-# Pace trend (avg pace)
+# HR vs pace
+fig = px.scatter(
+    df,
+    x="avg_hr",
+    y="avg_pace",
+    color="distance",
+    title="Heart Rate vs Pace",
+    labels={
+        "avg_hr": "Average HR (bpm)",
+        "avg_pace": "Average Pace (min/km)",
+        "distance": "Distance (km)"
+    },
+    hover_data=["distance", "elapsed_time", "stride_len"]
+)
 
-# HR to pace scatter (x = hr, y = pace)
+fig.update_layout(
+    template="plotly_dark",
+    title_x=0.5
+)
 
+fig.update_yaxes(autorange="reversed")
 
+fig.show()
+
+#%%
 # Cadence to pace scatter
+fig = px.scatter(
+    df,
+    x="avg_cad",
+    y="avg_pace",
+    color="stride_len",
+    title="Cadence vs Pace",
+    labels={
+        "avg_cad": "Average Cadence (spm)",
+        "avg_pace": "Average Pace (min/km)",
+        "stride_len": "Average Stride Length (m)"
+    },
+    hover_data=["avg_hr", "stride_len", "distance"]
+)
 
-# Efficiency ratio (avg pace / avg gap)
+fig.update_layout(
+    template="plotly_dark",
+    title_x=0.5
+)
 
+fig.update_yaxes(autorange="reversed")
+
+fig.show()
+
+#%%
 # Power–pace map - zones and pacing effectiveness
 # (x = Avg Power, y = Avg Pace, size = Distance)
+fig = px.scatter(
+    df,
+    x="avg_power",
+    y="avg_pace",
+    size="distance",
+    color="avg_hr",
+    title="Power vs Pace (Bubble Size = Distance)",
+    labels={
+        "avg_power": "Average Power (W)",
+        "avg_pace": "Average Pace (min/km)",
+        "avg_hr": "Average HR",
+        "distance": "Distance (km)"
+    },
+    hover_data=["distance", "avg_hr", "avg_cad"]
+)
+
+fig.update_layout(
+    template="plotly_dark",
+    title_x=0.5
+)
+
+fig.update_yaxes(autorange="reversed")
+
+fig.show()
+
+# Pace trend (avg pace)
 
 # Histograms: Avg HR, Avg Pace, Avg Cadence, TSS → typical ranges.
 
